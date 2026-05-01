@@ -61,6 +61,7 @@ src/sdlc_context/
 - The server must be org-agnostic. No hardcoded references to any specific company, org, or tool (Jira, AWX, etc.). All org-specific knowledge comes from config and content.
 - Config format is YAML
 - Content sources are markdown files
+- Use `fastmcp` (https://gofastmcp.com) for the MCP server, not the low-level `mcp` SDK. Import as `from fastmcp import FastMCP`. See https://gofastmcp.com/llms-full.txt for full API reference.
 
 ## Implementation Status
 
