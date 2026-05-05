@@ -68,8 +68,8 @@ def test_dynamic_tools_registered(tmp_path):
     register_content_tools()
 
     tool_names = [t.name for t in _list_tools()]
-    assert "get_security" in tool_names
-    assert "get_testing" in tool_names
+    assert "security" in tool_names
+    assert "testing" in tool_names
 
 
 def test_dynamic_tool_uses_frontmatter_description(tmp_path):
@@ -77,7 +77,7 @@ def test_dynamic_tool_uses_frontmatter_description(tmp_path):
     register_content_tools()
 
     tools = {t.name: t for t in _list_tools()}
-    assert "API testing" in tools["get_testing"].description
+    assert "API testing" in tools["testing"].description
 
 
 def test_most_specific_description_wins(tmp_path):
@@ -85,8 +85,8 @@ def test_most_specific_description_wins(tmp_path):
     register_content_tools()
 
     tools = {t.name: t for t in _list_tools()}
-    assert "API testing" in tools["get_testing"].description
-    assert "Testing strategy" not in tools["get_testing"].description
+    assert "API testing" in tools["testing"].description
+    assert "Testing strategy" not in tools["testing"].description
 
 
 def test_get_hierarchy_shows_chain(tmp_path):

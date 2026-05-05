@@ -23,6 +23,7 @@ mcp = FastMCP("sdlc-mcp")
 _config: Config | None = None
 
 
+
 def get_config() -> Config:
     global _config
     if _config is None:
@@ -50,18 +51,15 @@ def _make_content_tool(category: str, description: str):
     def tool_fn(repo: str | None = None) -> str:
         config = get_config()
 
-        if repo is None:
-            return "Error: repo parameter is required (auto-detection not yet implemented)"
-
-        hierarchy = resolve_hierarchy(config, repo)
+        hierarchy = resolve_hierarchy(config, repo or "")
         item = merge_content_for_category(hierarchy, category)
 
         if item is None:
-            return f"No content found for {category!r} in repo {repo!r}"
+            return f"No content found for {category!r}"
 
         return item.content
 
-    tool_fn.__name__ = f"get_{category.replace('-', '_')}"
+    tool_fn.__name__ = f"{category.replace('-', '_')}"
     tool_fn.__qualname__ = tool_fn.__name__
     return tool_fn
 
@@ -85,7 +83,7 @@ def register_content_tools() -> None:
     for filename in merged.filenames():
         item = merged.items[filename]
         category = filename.removesuffix(".md")
-        tool_name = f"get_{category.replace('-', '_')}"
+        tool_name = f"{category.replace('-', '_')}"
 
         description = item.tool_description
         if not description:
@@ -101,20 +99,16 @@ def register_content_tools() -> None:
 
 @mcp.tool()
 def get_hierarchy(repo: str | None = None) -> str:
-    """Show the resolved hierarchy for a repo: which team, org, company,
-    and what content sources are active at each level.
+    """Show the resolved hierarchy for a repo.
 
     Useful for debugging: 'why did the agent get this context?'
 
     Args:
-        repo: Repository identifier. Required until auto-detection is implemented.
+        repo: Repository name (e.g., "awx"). Optional.
     """
     config = get_config()
 
-    if repo is None:
-        return "Error: repo parameter is required (auto-detection not yet implemented)"
-
-    hierarchy = resolve_hierarchy(config, repo)
+    hierarchy = resolve_hierarchy(config, repo or "")
 
     lines = [f"Hierarchy for {repo!r}:", ""]
     for level in hierarchy.levels:
@@ -140,15 +134,11 @@ def get_workflows(repo: str | None = None) -> str:
     The caller (human or AI) decides which workflow to use.
 
     Args:
-        repo: Repository identifier (e.g., "ansible/awx"). Required
-              until auto-detection is implemented.
+        repo: Repository name (e.g., "awx"). Optional.
     """
     config = get_config()
 
-    if repo is None:
-        return "Error: repo parameter is required (auto-detection not yet implemented)"
-
-    hierarchy = resolve_hierarchy(config, repo)
+    hierarchy = resolve_hierarchy(config, repo or "")
     workflows = merge_workflows_for_hierarchy(hierarchy)
 
     if not workflows:
