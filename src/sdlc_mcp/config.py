@@ -67,7 +67,7 @@ class Config:
 
     def scopes_for_repo(self, repo: str) -> list[Scope]:
         name = repo.rsplit("/", 1)[-1]
-        return [s for s in self.scopes if not s.repos or name in s.repos]
+        return [s for s in self.scopes if not s.repos or name in s.repos or name == s.name]
 
 
 def _parse_sources(data: dict[str, Any]) -> list[SourceConfig]:
