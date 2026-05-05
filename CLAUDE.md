@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-sdlc-mcp: an open-source MCP server that serves hierarchical organizational context to AI agents. The server resolves a configurable hierarchy (company > org > team > repo), reads content from pluggable sources (local directories, git repos), merges with "most specific wins" semantics, and serves the result via MCP tools.
+sdlc-mcp: an open-source MCP server that serves hierarchical organizational context to AI agents. The server resolves a configurable hierarchy of named scopes, reads content from pluggable sources (local directories, git repos), merges with "most specific wins" semantics, and serves the result via MCP tools.
 
 See [docs/design.md](docs/design.md) for the full design document.
 
@@ -60,7 +60,7 @@ src/sdlc_mcp/
 - Use proper `logging` module, never `print()`
 - Source code under `src/sdlc_mcp/`
 - Examples under `examples/`
-- The server must be org-agnostic. No hardcoded references to any specific company, org, or tool (Jira, AWX, etc.). All org-specific knowledge comes from config and content.
+- The server must be org-agnostic. No hardcoded references to any specific organization or tool. All org-specific knowledge comes from config and content.
 - Config format is YAML
 - Content sources are markdown files
 - Use `fastmcp` (https://gofastmcp.com) for the MCP server, not the low-level `mcp` SDK. Import as `from fastmcp import FastMCP`. See https://gofastmcp.com/llms-full.txt for full API reference.

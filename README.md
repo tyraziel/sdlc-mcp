@@ -2,7 +2,7 @@
 
 An MCP server that serves hierarchical organizational context to AI agents.
 
-Organizations have standards, conventions, and process knowledge at multiple levels: company-wide, org, team, and repo. This server resolves those layers on demand, merges them with "most specific wins" semantics, and serves the result via MCP tools. The server is generic. The content and config are yours.
+Organizations have standards, conventions, and process knowledge at multiple levels: org, team, and repo. This server resolves those layers on demand, merges them with "most specific wins" semantics, and serves the result via MCP tools. The server is generic. The content and config are yours.
 
 ## Quick Start
 
@@ -36,7 +36,7 @@ A config file is a YAML list of named scopes:
 - name: acme
   sources:
     - type: local
-      path: content/company/
+      path: content/org/
 
 - name: platform
   sources:
@@ -55,7 +55,7 @@ Scopes can include external configs via `file://` or `github://` URIs:
 ```yaml
 - name: org
   include:
-    - file://company.yml
+    - file://base.yml
     - github://myorg/standards
   sources:
     - type: local

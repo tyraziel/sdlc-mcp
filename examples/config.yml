@@ -2,11 +2,6 @@
 # Later scopes override earlier ones. Scopes with `repos` only apply
 # when the requested repo matches. Includes pull in external configs.
 
-- name: acme
-  sources:
-    - type: local
-      path: examples/content/company/
-
 - name: platform
   sources:
     - type: local

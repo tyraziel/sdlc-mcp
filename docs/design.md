@@ -15,7 +15,7 @@ Different audiences need different subsets. Community contributors working on pu
 
 **An open-source MCP server that resolves hierarchical context on demand. The server is generic infrastructure. The content and config are pluggable and private.**
 
-The server itself knows nothing about Red Hat, AAP, or any specific organization. It reads a config that defines a hierarchy (company > org > team > repo), points at content sources (markdown in git repos, local directories, URLs), resolves the hierarchy with "most specific wins" semantics, and serves the merged result via MCP tools. Any organization can use it.
+The server itself knows nothing about any specific organization. It reads a config that defines a hierarchy of named scopes, points at content sources (markdown in git repos, local directories), resolves the hierarchy with "most specific wins" semantics, and serves the merged result via MCP tools. Any organization can use it.
 
 What makes it work for a specific org is the *config*: a private config that maps repos to teams, points at internal standards repos, and defines the hierarchy. This config ships in a container image or lives in a private repo. The server is open. The knowledge is private.
 
@@ -80,7 +80,7 @@ sdlc-mcp/
 The server is generic. It doesn't know about Jira, AWX, or any specific org. It knows how to:
 1. Load and merge configs from system/user/repo levels
 2. Read content from pluggable sources (git repos, local dirs)
-3. Resolve a hierarchy (walk the tree from repo up to company)
+3. Resolve a hierarchy (filter scopes by repo)
 4. Merge content at each level (most specific wins)
 5. Serve the result via MCP tools
 
@@ -92,8 +92,6 @@ A config file is a YAML list of named scopes, processed top to bottom. Each scop
 # Example: org config with includes and team scopes
 
 - name: acme
-  include:
-    - file://company.yml
   sources:
     - type: local
       path: content/company/

@@ -45,6 +45,18 @@ def init_config_from_path(
     register_content_tools()
 
 
+def _scope_has_category(scope, category: str) -> bool:
+    filename = f"{category}.md"
+    for source in scope.sources:
+        if source.type == "local" and source.path:
+            path = Path(source.path)
+            if path.is_dir() and (path / filename).exists():
+                return True
+            if path.is_file() and path.name == filename:
+                return True
+    return False
+
+
 def _make_content_tool(category: str, description: str):
     """Create a tool function that returns content for a specific category."""
 
@@ -55,6 +67,15 @@ def _make_content_tool(category: str, description: str):
         item = merge_content_for_category(hierarchy, category)
 
         if item is None:
+            available = [
+                s.name for s in config.scopes
+                if s.repos and _scope_has_category(s, category)
+            ]
+            if available:
+                return (
+                    f"No matching content for {category!r}."
+                    f" Available for: {', '.join(available)}"
+                )
             return f"No content found for {category!r}"
 
         return item.content

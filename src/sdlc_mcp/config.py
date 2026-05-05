@@ -6,10 +6,6 @@ optional includes (external file/repo references). Later scopes override
 earlier ones. The hierarchy is the list order.
 
 Example:
-    - name: redhat
-      include:
-        - file://security-standards.yml
-
     - name: aap
       sources:
         - type: local
