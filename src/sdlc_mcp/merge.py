@@ -14,7 +14,6 @@ from pathlib import Path
 from .config import SourceConfig
 from .hierarchy import ResolvedHierarchy
 from .sources import ContentItem, get_source_class
-from .workflows import Workflow, _load_workflows_from_file, merge_workflows
 
 logger = logging.getLogger(__name__)
 
@@ -70,23 +69,3 @@ def merge_content_for_category(hierarchy: ResolvedHierarchy, category: str) -> C
     return merged.get(filename)
 
 
-def _collect_workflow_paths(sources: list[SourceConfig]) -> list[Path]:
-    """Find workflows.yml files in local source directories."""
-    paths = []
-    for source_config in sources:
-        if source_config.type == "local" and source_config.path:
-            wf_path = Path(source_config.path) / "workflows.yml"
-            if wf_path.exists():
-                paths.append(wf_path)
-    return paths
-
-
-def merge_workflows_for_hierarchy(hierarchy: ResolvedHierarchy) -> dict[str, Workflow]:
-    """Load and merge workflow definitions from all hierarchy levels."""
-    levels_data = []
-    for level in hierarchy.levels:
-        level_workflows: dict[str, Workflow] = {}
-        for wf_path in _collect_workflow_paths(level.sources):
-            level_workflows.update(_load_workflows_from_file(wf_path))
-        levels_data.append(level_workflows)
-    return merge_workflows(levels_data)

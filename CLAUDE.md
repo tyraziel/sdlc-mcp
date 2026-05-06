@@ -35,7 +35,7 @@ uv run pytest
 
 **Merging:** "Most specific wins." If the team level has `testing.md` and the org level also has `testing.md`, the team version is used. Content that only exists at one level passes through unchanged. Merging is by filename within a category, not by concatenation.
 
-**MCP tools:** Content tools are auto-generated from markdown frontmatter (one tool per artifact). `get_workflows(repo)` returns available workflows. `get_hierarchy(repo)` shows the resolution chain for debugging.
+**MCP tools:** Content tools are auto-generated from markdown frontmatter (one tool per artifact).
 
 **Source layout:**
 
@@ -46,7 +46,6 @@ src/sdlc_mcp/
   config.py          # Config loading, include resolution, scope merging
   hierarchy.py       # Hierarchy resolution engine
   repo.py            # Shared git clone/cache helpers
-  workflows.py       # Workflow loading and merging
   sources/           # Pluggable content source adapters
     __init__.py      # Source protocol + frontmatter parsing
     local.py         # Local directory source
@@ -67,4 +66,4 @@ src/sdlc_mcp/
 
 ## Implementation Status
 
-Phases 1-3 are complete (skeleton, git source, real content). Config includes, dynamic tool registration from frontmatter, workflow routing, and the scope-based config model are all implemented. See docs/design.md for the full design.
+Phases 1-3 are complete (skeleton, git source, real content). Config includes, dynamic tool registration from frontmatter, and the scope-based config model are all implemented. See docs/design.md for the full design.

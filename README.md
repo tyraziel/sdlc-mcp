@@ -1,104 +1,69 @@
 # sdlc-mcp
 
-An MCP server that serves hierarchical organizational context to AI agents.
+An open-source MCP server that gives AI agents a table of contents for your entire platform.
 
-Organizations have standards, conventions, and process knowledge at multiple levels: org, team, and repo. This server resolves those layers on demand, merges them with "most specific wins" semantics, and serves the result via MCP tools. The server is generic. The content and config are yours.
+## Why
 
-## Quick Start
+AI agents need organizational knowledge to do real work: how to write a Jira story, how code reviews are conducted, what the testing standards are. This knowledge exists at different levels (org-wide, team-specific, repo-specific) and some of it can't live in public repos.
 
-```bash
-uv sync
-uv run sdlc-mcp serve --config path/to/config.yml
-```
+Putting everything in CLAUDE.md doesn't scale across repos. Loading everything upfront wastes the context window. And when the agent sees both an org-level and team-level version of the same thing, it has to guess which one wins.
 
-Register with Claude Code:
+This server solves all three problems. Content is served on demand (the agent pulls only what it needs), managed centrally (update once, every agent gets it), and merged with a clear hierarchy (later scopes override earlier ones, so the agent only ever sees the winning version).
 
-```bash
-claude mcp add --transport stdio --scope user sdlc-mcp \
-  -- uv run --project /path/to/sdlc-mcp sdlc-mcp serve \
-  --config /path/to/your/config.yml
-```
+## How the Hierarchy Works
 
-## How It Works
-
-The server reads a config that defines named scopes with content sources. Each scope can optionally filter by repo name. When an agent calls a tool, the server:
-
-1. Filters scopes to those applicable to the repo (org prefix is ignored)
-2. Reads content from sources at each scope
-3. Merges with "most specific wins" (later scopes override earlier ones)
-4. Returns the result
-
-### Config
-
-A config file is a YAML list of named scopes:
+The config is a YAML list of named scopes, processed top to bottom. Each scope points at content sources. Scopes without a `repos` filter apply to all repos. Scopes with `repos` only apply when the requested repo matches.
 
 ```yaml
-- name: acme
+- name: platform                      # org-wide, applies to all repos
   sources:
     - type: local
       path: content/org/
 
-- name: platform
-  sources:
-    - type: local
-      path: content/org/
-
-- name: api
+- name: api                           # only applies to api-gateway, api-auth
   repos: [api-gateway, api-auth]
   sources:
     - type: local
       path: content/teams/api/
 ```
 
-Scopes can include external configs via `file://` or `github://` URIs:
+If both `platform` and `api` have a `testing.md`, the `api` version wins for matching repos. Everything else inherits from the org level. The merge happens server-side. The agent never sees conflicting content, just the right answer.
 
-```yaml
-- name: org
-  include:
-    - file://base.yml
-    - github://myorg/standards
-  sources:
-    - type: local
-      path: content/
-```
+Scopes can also include external configs via `file://` or `github://` URIs, so content can be spread across multiple repos, public and private.
 
-Config is also loaded from standard paths (each overrides the previous):
+## How Content Becomes Tools
 
-| Level | Path | Purpose |
-|---|---|---|
-| System | `/etc/sdlc-mcp/config.yml` or `$SDLC_MCP_CONFIG` | Org defaults |
-| User | `~/.config/sdlc-mcp/config.yml` | Personal overrides |
-| Repo | `.sdlc/config.yml` (optional) | Repo-specific sources |
-
-### MCP Tools
-
-Content tools are **auto-generated** from markdown frontmatter. Each content file with frontmatter becomes its own tool:
+Content is markdown with YAML frontmatter. Each file automatically becomes an MCP tool:
 
 ```markdown
 ---
-name: code-review
-description: "Code review methodology: 3-lens scoring, evidence gate"
+name: org-structure
+description: "How the organization is structured"
 ---
 
-# Code Review
+# Organization Structure
 ...
 ```
 
-This registers as `get_code_review` with the description visible in the agent's tool list. The agent sees the full table of contents without making a discovery call.
+The agent sees the full table of contents the moment it connects. No CLAUDE.md hints needed. It calls the tool it needs and gets just that content.
 
-Static tools:
+## Quick Start
 
-| Tool | Purpose |
-|---|---|
-| `get_workflows(repo)` | Available workflows for a repo |
-| `get_hierarchy(repo)` | Show the resolved hierarchy (for debugging) |
+The simplest way to use this is through a content package that bundles your config and content together as a Python package. The content package depends on `sdlc-mcp`, so a single `uvx` command starts the server with everything included.
 
-### Content Sources
+To run directly:
 
-| Type | Description |
-|---|---|
-| `local` | Read markdown from a local directory or file |
-| `git` | Clone a repo and read from a path within it |
+```bash
+uv run sdlc-mcp serve --config path/to/config.yml
+```
+
+To register with Claude Code:
+
+```bash
+claude mcp add --transport stdio --scope project sdlc-mcp \
+  -- uv run --project /path/to/sdlc-mcp sdlc-mcp serve \
+  --config /path/to/config.yml
+```
 
 ## Design
 

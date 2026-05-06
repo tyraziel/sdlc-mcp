@@ -10,8 +10,7 @@ from fastmcp.tools import Tool
 
 from .config import Config, load_config
 from .hierarchy import resolve_hierarchy
-from .merge import merge_content, merge_content_for_category, merge_workflows_for_hierarchy
-from .workflows import format_workflow_list
+from .merge import merge_content, merge_content_for_category
 
 # Ensure source adapters are registered
 from .sources import git as _git, local as _local  # noqa: F401
@@ -118,51 +117,5 @@ def register_content_tools() -> None:
     logger.info("Registered %d content tools", len(merged.items))
 
 
-@mcp.tool()
-def get_hierarchy(repo: str | None = None) -> str:
-    """Show the resolved hierarchy for a repo.
-
-    Useful for debugging: 'why did the agent get this context?'
-
-    Args:
-        repo: Repository name (e.g., "awx"). Optional.
-    """
-    config = get_config()
-
-    hierarchy = resolve_hierarchy(config, repo or "")
-
-    lines = [f"Hierarchy for {repo!r}:", ""]
-    for level in hierarchy.levels:
-        lines.append(f"  {level.level}: {level.name}")
-        for source in level.sources:
-            if source.url:
-                lines.append(f"    - {source.type}: {source.url} ({source.path})")
-            else:
-                lines.append(f"    - {source.type}: {source.path}")
-
-    if not hierarchy.levels:
-        lines.append("  (no hierarchy levels matched)")
-
-    return "\n".join(lines)
 
 
-@mcp.tool()
-def get_workflows(repo: str | None = None) -> str:
-    """Get available workflows for a repo.
-
-    Returns all workflows defined for this repo's hierarchy, including
-    triggers, Jira issue types, required capabilities, and descriptions.
-    The caller (human or AI) decides which workflow to use.
-
-    Args:
-        repo: Repository name (e.g., "awx"). Optional.
-    """
-    config = get_config()
-
-    hierarchy = resolve_hierarchy(config, repo or "")
-    workflows = merge_workflows_for_hierarchy(hierarchy)
-
-    if not workflows:
-        return f"No workflows defined for repo {repo!r}"
-
-    return format_workflow_list(workflows)

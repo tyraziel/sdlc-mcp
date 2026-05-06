@@ -3,7 +3,7 @@
 import asyncio
 
 from sdlc_mcp.config import Config, Scope, SourceConfig
-from sdlc_mcp.server import get_hierarchy, init_config, mcp, register_content_tools
+from sdlc_mcp.server import init_config, mcp, register_content_tools
 from sdlc_mcp.sources import local as _local  # noqa: F401
 
 
@@ -12,7 +12,7 @@ def _list_tools():
 
 
 def _clear_dynamic_tools():
-    static_tools = {"get_hierarchy", "get_workflows"}
+    static_tools = set()
     for tool in _list_tools():
         if tool.name not in static_tools:
             mcp.local_provider.remove_tool(tool.name)
@@ -89,19 +89,3 @@ def test_most_specific_description_wins(tmp_path):
     assert "Testing strategy" not in tools["testing"].description
 
 
-def test_get_hierarchy_shows_chain(tmp_path):
-    _setup_config(tmp_path)
-    result = get_hierarchy(repo="acme/api-gateway")
-
-    assert "acme" in result
-    assert "platform" in result
-    assert "api" in result
-
-
-def test_get_hierarchy_unknown_repo(tmp_path):
-    _setup_config(tmp_path)
-    result = get_hierarchy(repo="unknown/repo")
-
-    assert "acme" in result
-    assert "platform" in result
-    assert "api" not in result
