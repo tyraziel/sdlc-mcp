@@ -49,21 +49,19 @@ The agent sees the full table of contents the moment it connects. No CLAUDE.md h
 
 ## Quick Start
 
-The simplest way to use this is through a content package that bundles your config and content together as a Python package. The content package depends on `sdlc-mcp`, so a single `uvx` command starts the server with everything included.
-
-To run directly:
-
 ```bash
-uv run sdlc-mcp serve --config path/to/config.yml
+pip install sdlc-mcp
+sdlc-mcp serve --config path/to/config.yml
 ```
 
-To register with Claude Code:
+Register with Claude Code:
 
 ```bash
 claude mcp add --transport stdio --scope project sdlc-mcp \
-  -- uv run --project /path/to/sdlc-mcp sdlc-mcp serve \
-  --config /path/to/config.yml
+  -- uvx sdlc-mcp serve --config /path/to/config.yml
 ```
+
+Or bundle your config and content into a separate package that depends on `sdlc-mcp`. See the [design doc](docs/design.md) for details.
 
 ## Design
 
