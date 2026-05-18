@@ -81,7 +81,7 @@ A config file is a YAML list of named scopes, processed top to bottom. Each scop
 
 Scopes with a `repos` filter only apply when the requested repo matches. The org prefix is stripped during matching, so `acme/api-gateway`, `fork/api-gateway`, and `api-gateway` all match `repos: [api-gateway]`. Scopes also match by name, so `repo: "api"` matches the `api` scope directly.
 
-Includes resolve `file://` (local paths, absolute or relative) and `github://` (clones via git) URIs. Included configs are processed before the including scope, so they provide the base that later scopes override.
+Includes resolve `file://` (local paths, absolute or relative) and `git+<url>` (clones any git repo) URIs. Included configs are processed before the including scope, so they provide the base that later scopes override.
 
 ### MCP Tools
 
@@ -163,7 +163,7 @@ The architecture is designed so that SEP-2640 support is an additive layer, not 
 
 ### Phase 3: Config and tool evolution (done)
 - Scope-based config model (YAML list of named scopes)
-- Config includes (`file://`, `github://`) with recursive resolution
+- Config includes (`file://`, `git+<url>`) with recursive resolution
 - Dynamic tool registration from markdown frontmatter
 - Repo name matching (org prefix stripped, scope name matching)
 - Content as individual artifact files with frontmatter

@@ -29,7 +29,7 @@ The config is a YAML list of named scopes, processed top to bottom. Each scope p
 
 If both `acme` and `api` have a `testing.md`, the `api` version wins for matching repos. Everything else inherits from the org level. The merge happens server-side. The agent never sees conflicting content, just the right answer.
 
-Scopes can also include external configs via `file://` or `github://` URIs, so content can be spread across multiple repos, public and private.
+Scopes can also include external configs via `file://` or `git+<url>` URIs, so content can be spread across multiple repos, public and private.
 
 ## How Content Becomes Tools
 

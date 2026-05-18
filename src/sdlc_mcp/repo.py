@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import hashlib
 import logging
-import subprocess
 from pathlib import Path
+
+import git
 
 logger = logging.getLogger(__name__)
 
@@ -18,35 +19,23 @@ def cache_key(url: str, ref: str = "") -> str:
     return f"{name}-{slug}"
 
 
-def run_git(args: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        ["git", *args],
-        cwd=cwd,
-        capture_output=True,
-        text=True,
-        timeout=120,
-    )
-
-
 def ensure_cloned(url: str, ref: str, dest: Path) -> None:
     if dest.exists():
         logger.debug("Pulling updates for %s", url)
-        result = run_git(["fetch", "--quiet", "origin"], cwd=dest)
-        if result.returncode != 0:
-            logger.warning("git fetch failed for %s: %s", url, result.stderr.strip())
-            return
-
-        target = f"origin/{ref}" if ref else "origin/HEAD"
-        result = run_git(["reset", "--hard", target], cwd=dest)
-        if result.returncode != 0:
-            logger.warning("git reset failed for %s: %s", url, result.stderr.strip())
+        try:
+            repo = git.Repo(dest)
+            repo.remotes.origin.fetch()
+            target = f"origin/{ref}" if ref else "origin/HEAD"
+            repo.head.reset(target, working_tree=True)
+        except git.GitCommandError as exc:
+            logger.warning("git update failed for %s: %s", url, exc)
     else:
         dest.parent.mkdir(parents=True, exist_ok=True)
         logger.debug("Cloning %s to %s", url, dest)
-        clone_args = ["clone", "--quiet", "--depth", "1"]
-        if ref:
-            clone_args.extend(["--branch", ref])
-        clone_args.extend([url, str(dest)])
-        result = run_git(clone_args)
-        if result.returncode != 0:
-            logger.error("git clone failed for %s: %s", url, result.stderr.strip())
+        try:
+            kwargs: dict = {"depth": 1}
+            if ref:
+                kwargs["branch"] = ref
+            git.Repo.clone_from(url, str(dest), **kwargs)
+        except git.GitCommandError as exc:
+            logger.error("git clone failed for %s: %s", url, exc)

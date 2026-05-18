@@ -25,7 +25,7 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs
 
 import yaml
 
@@ -122,20 +122,25 @@ def _resolve_include_uri(uri: str, base_dir: Path) -> tuple[Path, Path]:
             return sdlc_config, path
         raise IncludeError(f"Include {uri}: no config.yml found at {path}")
 
-    if uri.startswith("github://"):
+    if uri.startswith("git+"):
         from .repo import CACHE_DIR, cache_key, ensure_cloned
 
-        parsed = urlparse(uri)
-        repo_slug = parsed.netloc + parsed.path
-        params = parse_qs(parsed.query)
+        raw = uri[4:]
+        qmark = raw.find("?")
+        if qmark >= 0:
+            repo_url = raw[:qmark]
+            params = parse_qs(raw[qmark + 1 :])
+        else:
+            repo_url = raw
+            params = {}
+
         ref = params.get("ref", [""])[0]
         config_path = params.get("path", [""])[0]
 
-        git_url = f"https://github.com/{repo_slug}.git"
-        key = cache_key(git_url, ref)
+        key = cache_key(repo_url, ref)
         dest = CACHE_DIR / key
 
-        ensure_cloned(git_url, ref, dest)
+        ensure_cloned(repo_url, ref, dest)
 
         if not dest.exists():
             raise IncludeError(f"Include {uri}: clone failed")
