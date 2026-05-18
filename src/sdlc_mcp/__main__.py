@@ -42,8 +42,8 @@ def main() -> None:
     )
     serve_parser.add_argument(
         "--host",
-        default="0.0.0.0",
-        help="Host to bind to when using HTTP transport (default: 0.0.0.0)",
+        default="localhost",
+        help="Host to bind to when using HTTP transport (default: localhost)",
     )
     serve_parser.add_argument(
         "--port",
