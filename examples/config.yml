@@ -5,16 +5,16 @@
 - name: platform
   sources:
     - type: local
-      path: examples/content/org/
+      path: content/org/
 
 - name: api
   repos: [api-gateway, api-auth]
   sources:
     - type: local
-      path: examples/content/teams/api/
+      path: content/teams/api/
 
 - name: frontend
   repos: [web-app, design-system]
   sources:
     - type: local
-      path: examples/content/teams/frontend/
+      path: content/teams/frontend/

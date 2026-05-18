@@ -70,11 +70,14 @@ def main() -> None:
             config_paths=args.config,
             repo_path=args.repo_path,
         )
-        mcp.run(
-            transport=args.transport,
-            host=args.host,
-            port=args.port,
-        )
+        if args.transport == "stdio":
+            mcp.run(transport="stdio")
+        else:
+            mcp.run(
+                transport=args.transport,
+                host=args.host,
+                port=args.port,
+            )
 
 
 if __name__ == "__main__":
