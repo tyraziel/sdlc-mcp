@@ -14,8 +14,14 @@ See [docs/design.md](docs/design.md) for the full design document.
 # Dependencies
 uv sync
 
-# Run the server
+# Run the server (stdio, default)
 uv run sdlc-mcp serve
+
+# Run as HTTP server with Google OAuth
+export GOOGLE_CLIENT_ID="…"
+export GOOGLE_CLIENT_SECRET="…"
+export SDLC_MCP_BASE_URL="https://your-server.run.app"
+uv run sdlc-mcp serve --transport streamable-http --port 8000
 
 # Lint
 uvx ruff check .
@@ -63,6 +69,16 @@ src/sdlc_mcp/
 - Config format is YAML
 - Content sources are markdown files
 - Use `fastmcp` (https://gofastmcp.com) for the MCP server, not the low-level `mcp` SDK. Import as `from fastmcp import FastMCP`. See https://gofastmcp.com/llms-full.txt for full API reference.
+
+## Authentication
+
+Google OAuth is supported via FastMCP's built-in `GoogleProvider`. It activates automatically when `GOOGLE_CLIENT_ID` is set. Required env vars:
+
+- `GOOGLE_CLIENT_ID` — OAuth2 client ID from GCP Console
+- `GOOGLE_CLIENT_SECRET` — corresponding client secret
+- `SDLC_MCP_BASE_URL` — public URL of the server (e.g. `https://your-server.run.app`)
+
+The authorized redirect URI in GCP Console must be set to `<SDLC_MCP_BASE_URL>/auth/callback`. When env vars are absent, auth is disabled and the server runs unauthenticated (suitable for local stdio usage).
 
 ## Implementation Status
 

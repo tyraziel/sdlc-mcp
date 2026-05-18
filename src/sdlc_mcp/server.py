@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from pathlib import Path
 
 from fastmcp import FastMCP
@@ -17,7 +18,25 @@ from .sources import git as _git, local as _local  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
-mcp = FastMCP("sdlc-mcp")
+
+def _build_auth():
+    """Build a GoogleProvider auth backend if credentials are configured."""
+    client_id = os.environ.get("GOOGLE_CLIENT_ID")
+    if not client_id:
+        return None
+
+    from fastmcp.server.auth.providers.google import GoogleProvider
+
+    base_url = os.environ.get("SDLC_MCP_BASE_URL", "http://localhost:8000")
+    logger.info("Google OAuth enabled (client_id=%s…)", client_id[:8])
+    return GoogleProvider(
+        client_id=client_id,
+        client_secret=os.environ.get("GOOGLE_CLIENT_SECRET"),
+        base_url=base_url,
+    )
+
+
+mcp = FastMCP("sdlc-mcp", auth=_build_auth())
 
 _config: Config | None = None
 

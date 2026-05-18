@@ -34,6 +34,23 @@ def main() -> None:
         action="store_true",
         help="Enable debug logging",
     )
+    serve_parser.add_argument(
+        "--transport",
+        choices=["stdio", "streamable-http"],
+        default="stdio",
+        help="Transport protocol (default: stdio)",
+    )
+    serve_parser.add_argument(
+        "--host",
+        default="0.0.0.0",
+        help="Host to bind to when using HTTP transport (default: 0.0.0.0)",
+    )
+    serve_parser.add_argument(
+        "--port",
+        type=int,
+        default=8000,
+        help="Port to bind to when using HTTP transport (default: 8000)",
+    )
 
     args = parser.parse_args()
 
@@ -53,7 +70,11 @@ def main() -> None:
             config_paths=args.config,
             repo_path=args.repo_path,
         )
-        mcp.run()
+        mcp.run(
+            transport=args.transport,
+            host=args.host,
+            port=args.port,
+        )
 
 
 if __name__ == "__main__":
